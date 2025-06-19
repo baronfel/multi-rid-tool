@@ -76,10 +76,18 @@ This tool builds in several variations to demonstrate the options you have for c
 
 The variations are:
 * **framework-dependent, platform-agnostic**: This is the default variation, which will run on any system that has .NET 10 preview 6 runtimes installed. This is the way all .NET tools have been built in the past, and it will continue to work with the new `dnx` command. This will result in one tool package that can be used on any platform that supports .NET 10 preview 6.
-* **framework-dependent, platform-specific**: This variation will run on any system that has .NET 10 preview 6 runtimes installed, but it will only run on the specific platform it was built for. This is useful for tools that need to use platform-specific features or libraries. This will result in multiple tool packages, one for each platform that is specified in the project file.
+* **framework-dependent, platform-specific**: This variation will run on any system that has .NET 10 preview 6 runtimes installed, but it will only run on the specific platform it was built for. This is useful for tools that need to use platform-specific features or libraries. This will result in multiple tool packages, one for each platform that is specified in the project file. (NOTE: not working in p6)
 * **self-contained, platform-specific**: This variation will create a self-contained executable that includes the .NET runtime and all dependencies. This is useful for tools that need to run on systems that do not have .NET 10 preview 6 installed. This will result in multiple tool packages, one for each platform that is specified in the project file. In this mode, the tool packages may be fairly large.
-* **trimmed, platform-specific**: This variation will create a self-contained executable that includes the .NET runtime and all dependencies, but it will also trim unused code to reduce the size of the executable. This is useful for tools that need to run on systems that do not have .NET 10 preview 6 installed, but also need to be as small as possible. This will result in multiple self-contained executables, one for each platform that is specified in the project file.
+* **trimmed, platform-specific**: This variation will create a self-contained executable that includes the .NET runtime and all dependencies, but it will also trim unused code to reduce the size of the executable. This is useful for tools that need to run on systems that do not have .NET 10 preview 6 installed, but also need to be as small as possible. This will result in multiple self-contained executables, one for each platform that is specified in the project file. (NOTE: not working in p6)
 * **Ahead-of-time (AOT) compiled, platform-specific**: This variation will create a self-contained executable that is compiled ahead of time for the specific platform. This is useful for tools that need to run on systems that do not have .NET 10 preview 6 installed, but also need to have as little startup overhead as possible. This mode requires creating AOT'd tool packages for each platform that is specified in the project file. The AOT compilation process for .NET requires building on each destination platform, so this mode requires the use of a CI process like GitHub Actions or Azure DevOps to build the tool packages for each platform.
+
+To build the variations, you use the `dotnet pack` command with the `-p ToolType=<value>` option to specify the variation you want to build. The valid values for `ToolType` are:
+
+* `agnostic` - one package, ~350kb
+* `specific` - one package per platform, ~350kb each
+* `self-contained` - one package per platform, ~35mb each
+* `trimmed` - one package per platform, ~10mb each
+* `aot` - one package per platform, ~6mb (~ with StripSymbols=true) each. in addition you must call `dotnet pack -p ToolType=aot -r <rid>` for each platform you want to build for, where `<rid>` is the runtime identifier for the platform. For example, `dotnet pack -p ToolType=aot -r win-x64` will build an AOT'd tool package for Windows x64.
 
 [spectre]: https://spectreconsole.net/
 [download-dotnet-10]: https://dotnet.microsoft.com/en-us/download/dotnet/10.0

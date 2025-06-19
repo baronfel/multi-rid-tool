@@ -16,10 +16,57 @@
     <Description>A .NET tool that converts text to ASCII art using Spectre.Console</Description>
     <PackageTags>ascii;art;figlet;console;tool</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <_TestingRIDs>linux-x64;linux-arm64;win-x64;osx-arm64;</_TestingRIDs>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(ToolType)' == 'agnostic' Or '$(ToolType)' == ''">
+    <!-- This is the default variation, which will run on any system that has .NET 10 preview 6 runtimes installed. -->
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ToolType)' == 'specific'">
+    <!-- This variation will run on any system that has .NET 10 preview 6 runtimes installed, but it will only run on the specific platform it was built for. -->
+    <!-- This may not actually work? -->
+    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ToolType)' == 'self-contained'">
+    <!-- This variation will create a self-contained executable that includes the .NET runtime and all dependencies. -->
+    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
+    <PublishSelfContained>true</PublishSelfContained>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ToolType)' == 'trimmed'">
+    <!-- This variation will create a self-contained executable that includes the .NET runtime and all dependencies, but it will also trim unused code to reduce the size of the executable. -->
+    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
+    <PublishSelfContained>true</PublishSelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ToolType)' == 'aot'">
+    <!-- This variation will create a self-contained executable that is compiled ahead of time for the specific platform. -->
+    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
+    <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+
+  <Target Name="CheckToolType" BeforeTargets="Pack">
+    <Error Condition="'@(ToolType)' != '' and ('$(ToolType)' != 'agnostic' And '$(ToolType)' != 'specific' And '$(ToolType)' != 'self-contained' And '$(ToolType)' != 'trimmed' And '$(ToolType)' != 'aot')" Text="Invalid ToolType value: $(ToolType). Valid values are agnostic, specific, self-contained, trimmed, aot." />
+  </Target>
+
+  <!-- TODO: log the fact that this doesn't work today as a bug in the SDK/NuGet. -->
+  <Target Name="CleanPackageFiles"
+          DependsOnTargets="_GetOutputItemsFromPack"
+          AfterTargets="Clean"
+          Condition="'$(IsInnerBuild)' != 'true'">
+    <ItemGroup>
+      <_PackageFilesToDelete Include="$(PackageOutputPath)/*.nupkg"/>
+      <_PackageFilesToDelete Include="$(NuspecOutputPath)/*.nuspec"/>
+    </ItemGroup>
+    <Delete Files="@(_PackageFilesToDelete)"/>
+  </Target>
 
 </Project>

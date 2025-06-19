@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.Build.Traversal/4.1.82">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="toolsay\toolsay.csproj" />
+  </ItemGroup>
+
+  <Target Name="ReallyClean">
+    <ItemGroup>
+      <!-- would be great to poke the projects and find this information -->
+      <_rids Include="linux-x64;linux-arm64;win-x64;osx-arm64" />
+      <_configurations Include="Debug;Release" />
+      
+      <permutations Include="@(_configurations)">
+        <RID>%(_rids.Identity)</RID>
+      </permutations>
+
+      <_projects Include="@(ProjectReference)" AdditionalProperties="Configuration=%(permutations.Identity);RuntimeIdentifier=%(permutations.RID)" />
+      <_projects Include="@(ProjectReference)" AdditionalProperties="Configuration=%(_configurations.Identity);" />
+    </ItemGroup>
+    <MSBuild Projects="@(_projects)"
+             Targets="Clean"
+             BuildInParallel="true" />
+  </Target>
+</Project>
