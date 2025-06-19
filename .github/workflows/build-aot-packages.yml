@@ -15,13 +15,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             rid: linux-x64
-          - os: ubuntu-latest-arm64
+          - os: ubuntu-24.04-arm
             rid: linux-arm64
-          - os: windows-latest
+          - os: windows-2025
             rid: win-x64
-          - os: macos-latest
+          - os: macos-15
             rid: osx-x64
 
     runs-on: ${{ matrix.os }}
@@ -43,6 +43,7 @@ jobs:
         name: aot-package-${{ matrix.rid }}
         path: artifacts/packages/release/*.nupkg
         retention-days: 30
+        if-no-files-found: error
 
   build-agnostic:
     runs-on: ubuntu-latest
@@ -64,6 +65,7 @@ jobs:
         name: aot-package-agnostic
         path: artifacts/packages/release/*.nupkg
         retention-days: 30
+        if-no-files-found: error
 
   collect-all-packages:
     needs: [build-platform-specific, build-agnostic]
@@ -88,3 +90,4 @@ jobs:
         name: all-aot-packages
         path: collected-packages/**/*.nupkg
         retention-days: 90
+        if-no-files-found: error
