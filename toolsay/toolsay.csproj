@@ -16,7 +16,7 @@
     <Description>A .NET tool that converts text to ASCII art using Spectre.Console</Description>
     <PackageTags>ascii;art;figlet;console;tool</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <_TestingRIDs>linux-x64;linux-arm64;win-x64;osx-arm64;</_TestingRIDs>
+    <_TestingRIDs>linux-x64;linux-arm64;win-x64;win-arm64;osx-arm64;</_TestingRIDs>
   </PropertyGroup>
 
   <ItemGroup>

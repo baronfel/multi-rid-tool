@@ -21,6 +21,8 @@ jobs:
             rid: linux-arm64
           - os: windows-2025
             rid: win-x64
+          - os: windows-11-arm
+            rid: win-arm64
           - os: macos-15
             rid: osx-x64
 
