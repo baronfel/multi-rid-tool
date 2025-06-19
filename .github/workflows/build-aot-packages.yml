@@ -12,11 +12,12 @@ env:
 jobs:
   build-platform-specific:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             rid: linux-x64
-          - os: ubuntu-latest
+          - os: ubuntu-latest-arm64
             rid: linux-arm64
           - os: windows-latest
             rid: win-x64
@@ -40,8 +41,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: aot-package-${{ matrix.rid }}
-        path: artifacts/packages/*.nupkg
+        path: artifacts/packages/release/*.nupkg
         retention-days: 30
+
   build-agnostic:
     runs-on: ubuntu-latest
 
@@ -60,7 +62,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: aot-package-agnostic
-        path: artifacts/packages/*.nupkg
+        path: artifacts/packages/release/*.nupkg
         retention-days: 30
 
   collect-all-packages:
