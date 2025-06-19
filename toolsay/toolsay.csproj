@@ -1,11 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <RootNamespace>multi_rid_tool</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+
+    <!-- .NET Tool properties -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>toolsay</ToolCommandName>
+    <PackageId>toolsay</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Chet Husk</Authors>
+    <Description>A .NET tool that converts text to ASCII art using Spectre.Console</Description>
+    <PackageTags>ascii;art;figlet;console;tool</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
