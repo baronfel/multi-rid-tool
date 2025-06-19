@@ -1,0 +1,88 @@
+name: Build AOT Tool Packages
+
+on:
+  push:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.100-preview.6.25317.108'
+
+jobs:
+  build-platform-specific:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: ubuntu-latest
+            rid: linux-arm64
+          - os: windows-latest
+            rid: win-x64
+          - os: macos-latest
+            rid: osx-x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Build AOT package for ${{ matrix.rid }}
+      run: dotnet pack toolsay/toolsay.csproj -p:ToolType=aot -r ${{ matrix.rid }}
+
+    - name: Upload platform-specific package
+      uses: actions/upload-artifact@v4
+      with:
+        name: aot-package-${{ matrix.rid }}
+        path: artifacts/packages/*.nupkg
+        retention-days: 30
+  build-agnostic:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Build agnostic AOT package
+      run: dotnet pack toolsay/toolsay.csproj -p:ToolType=aot
+
+    - name: Upload agnostic package
+      uses: actions/upload-artifact@v4
+      with:
+        name: aot-package-agnostic
+        path: artifacts/packages/*.nupkg
+        retention-days: 30
+
+  collect-all-packages:
+    needs: [build-platform-specific, build-agnostic]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: collected-packages
+
+    - name: List all collected packages
+      run: |
+        echo "All collected AOT packages:"
+        find collected-packages -name "*.nupkg" -type f | sort
+        echo ""
+        echo "Package count: $(find collected-packages -name "*.nupkg" -type f | wc -l)"
+
+    - name: Upload all packages as single artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: all-aot-packages
+        path: collected-packages/**/*.nupkg
+        retention-days: 90

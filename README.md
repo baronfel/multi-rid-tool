@@ -87,7 +87,7 @@ To build the variations, you use the `dotnet pack` command with the `-p ToolType
 * `specific` - one package per platform, ~350kb each
 * `self-contained` - one package per platform, ~35mb each
 * `trimmed` - one package per platform, ~10mb each
-* `aot` - one package per platform, ~6mb (~ with StripSymbols=true) each. in addition you must call `dotnet pack -p ToolType=aot -r <rid>` for each platform you want to build for, where `<rid>` is the runtime identifier for the platform. For example, `dotnet pack -p ToolType=aot -r win-x64` will build an AOT'd tool package for Windows x64.
+* `aot` - one package per platform, ~6mb (~ with StripSymbols=true) each. in addition you must call `dotnet pack -p ToolType=aot -r <rid>` for each platform you want to build for, where `<rid>` is the runtime identifier for the platform. For example, `dotnet pack -p ToolType=aot -r win-x64` will build an AOT'd tool package for Windows x64. See the [build-aot-packages](.github/workflows/build-aot-packages.yml) workflow for an example of how to build AOT'd tool packages for multiple platforms using GitHub Actions.
 
 [spectre]: https://spectreconsole.net/
 [download-dotnet-10]: https://dotnet.microsoft.com/en-us/download/dotnet/10.0
