@@ -16,15 +16,10 @@ jobs:
       matrix:
         include:
           - os: ubuntu-24.04
-            rid: linux-x64
           - os: ubuntu-24.04-arm
-            rid: linux-arm64
           - os: windows-2025
-            rid: win-x64
           - os: windows-11-arm
-            rid: win-arm64
           - os: macos-15
-            rid: osx-x64
 
     runs-on: ${{ matrix.os }}
 
@@ -37,7 +32,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Build AOT package for ${{ matrix.rid }}
-      run: dotnet pack toolsay/toolsay.csproj -p:ToolType=aot -r ${{ matrix.rid }}
+      run: dotnet pack toolsay/toolsay.csproj -p:ToolType=aot --use-current-runtime
 
     - name: Upload platform-specific package
       uses: actions/upload-artifact@v4
