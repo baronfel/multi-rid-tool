@@ -14,12 +14,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # the rid isn't required to _make_ the packages (we use --use-current-runtime), 
+        # but it helps name the artifacts clearly and allows us to use the same workflow for all platforms.
         include:
           - os: ubuntu-24.04
+            rid: linux-x64
           - os: ubuntu-24.04-arm
+            rid: linux-arm64
           - os: windows-2025
+            rid: win-x64
           - os: windows-11-arm
+            rid: win-arm64
           - os: macos-15
+            rid: osx-x64
 
     runs-on: ${{ matrix.os }}
 
