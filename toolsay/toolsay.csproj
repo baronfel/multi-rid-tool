@@ -1,56 +1,59 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType Condition="'$(PackAsTool)' == 'true'" >Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
     <!-- .NET Tool properties -->
-    <PackAsTool>true</PackAsTool>
+    <PackAsTool>false</PackAsTool>
+    <PackageType>Dependency</PackageType>
     <ToolCommandName>toolsay</ToolCommandName>
     <PackageId>toolsay</PackageId>
     <PackageVersion>1.0.0</PackageVersion>
     <Authors>Chet Husk</Authors>
     <Description>A .NET tool that converts text to ASCII art using Spectre.Console</Description>
-    <PackageTags>ascii;art;figlet;console;tool</PackageTags>
+    <PackageTags>ascii;art;figlet;console</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <_TestingRIDs>linux-x64;linux-arm64;win-x64;win-arm64;osx-arm64;</_TestingRIDs>
+    <GenerateNuspecDependsOn Condition='!$(PackAsTool)' >_AlsoSetToolProperties</GenerateNuspecDependsOn>
+    <TargetsForTfmSpecificContentInPackage Condition='!$(PackAsTool)'>$(TargetsForTfmSpecificContentInPackage);_AlsoPackTool;_AlsoTriggerRIDPackageBuilds</TargetsForTfmSpecificContentInPackage>
+    <RuntimeIdentifiers Condition=" '$(ToolType)' != '' and '$(ToolType)' != 'agnostic' " >$(_TestingRIDs)</RuntimeIdentifiers>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Library.cs" />
+    <Compile Include="Program.cs" Condition="$(PackAsTool)" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(ToolType)' == 'agnostic' Or '$(ToolType)' == ''">
+  <PropertyGroup Condition="$(PackAsTool) and ('$(ToolType)' == 'agnostic' Or '$(ToolType)' == '')">
     <!-- This is the default variation, which will run on any system that has .NET 10 preview 6 runtimes installed. -->
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(ToolType)' == 'specific'">
-    <!-- This variation will run on any system that has .NET 10 preview 6 runtimes installed, but it will only run on the specific platform it was built for. -->
-    <!-- This may not actually work? -->
-    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(ToolType)' == 'self-contained'">
+  <PropertyGroup Condition="$(PackAsTool) and '$(ToolType)' == 'self-contained'">
     <!-- This variation will create a self-contained executable that includes the .NET runtime and all dependencies. -->
-    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
     <PublishSelfContained>true</PublishSelfContained>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(ToolType)' == 'trimmed'">
+  <PropertyGroup Condition="$(PackAsTool) and '$(ToolType)' == 'trimmed'">
     <!-- This variation will create a self-contained executable that includes the .NET runtime and all dependencies, but it will also trim unused code to reduce the size of the executable. -->
-    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
     <PublishSelfContained>true</PublishSelfContained>
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(ToolType)' == 'aot'">
+  <PropertyGroup Condition="$(PackAsTool) and '$(ToolType)' == 'aot'">
     <!-- This variation will create a self-contained executable that is compiled ahead of time for the specific platform. -->
-    <RuntimeIdentifiers>$(_TestingRIDs)</RuntimeIdentifiers>
     <PublishAot>true</PublishAot>
     <StripSymbols>true</StripSymbols>
+    <UseAppHost>true</UseAppHost>
   </PropertyGroup>
 
   <Target Name="CheckToolType" BeforeTargets="Pack">
@@ -67,6 +70,31 @@
       <_PackageFilesToDelete Include="$(NuspecOutputPath)/*.nuspec"/>
     </ItemGroup>
     <Delete Files="@(_PackageFilesToDelete)"/>
+  </Target>
+
+  <Target Name="_AlsoPackTool">
+    <ItemGroup>
+      <_ToolProjectToPack Include="$(MSBuildProjectFullPath)" AdditionalProperties="PackAsTool=true" />
+    </ItemGroup>
+    <MSBuild Projects="@(_ToolProjectToPack)" Targets="PackTool">
+      <Output TaskParameter="TargetOutputs" ItemName="TfmSpecificPackageFile" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="_AlsoSetToolProperties">
+    <PropertyGroup>
+      <PackageType>$(PackageType);DotNetTool</PackageType>
+      <PackageTags>$(PackageTags);tool</PackageTags>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="_AlsoTriggerRIDPackageBuilds">
+    <ItemGroup>
+      <_ToolProjectToTriggerRidBuilds Include="$(MSBuildProjectFullPath)" AdditionalProperties="PackAsTool=true" />
+    </ItemGroup>
+    <MSBuild Projects="@(_ToolProjectToTriggerRidBuilds)" Targets="_CreateRIDSpecificToolPackages">
+      <Output TaskParameter="TargetOutputs" ItemName="_ToolPackageOutputs" />
+    </MSBuild>
   </Target>
 
 </Project>

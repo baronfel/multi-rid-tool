@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using Library;
+using Spectre.Console;
 
 class Program
 {
@@ -30,10 +31,6 @@ class Program
         }
 
         // Create and display the ASCII art using FigletText
-        var figlet = new FigletText(inputText)
-            .Centered()
-            .Color(Color.Green);
-
-        AnsiConsole.Write(figlet);
+        AnsiConsole.Write(Figmatize.MakeGreenText(inputText));
     }
 }
