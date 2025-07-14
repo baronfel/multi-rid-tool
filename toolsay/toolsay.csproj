@@ -53,6 +53,7 @@
     <!-- This variation will create a self-contained executable that is compiled ahead of time for the specific platform. -->
     <PublishAot>true</PublishAot>
     <StripSymbols>true</StripSymbols>
+    <UseAppHost>true</UseAppHost>
   </PropertyGroup>
 
   <Target Name="CheckToolType" BeforeTargets="Pack">
