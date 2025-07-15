@@ -6,9 +6,6 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  DOTNET_VERSION: '10.0.100-preview.6.25317.108'
-
 jobs:
   build-platform-specific:
     strategy:
@@ -35,8 +32,6 @@ jobs:
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Build AOT package for ${{ matrix.rid }}
       run: dotnet pack toolsay/toolsay.csproj -p:ToolType=aot --use-current-runtime
@@ -57,8 +52,6 @@ jobs:
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Build agnostic AOT package
       run: dotnet pack toolsay/toolsay.csproj -p:ToolType=aot
