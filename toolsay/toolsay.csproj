@@ -8,6 +8,7 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 
     <GenerateNuspecDependsOn>CheckToolTypesThatDoNotWorkForPreview6;CheckToolTypeIsValid;$(GenerateNuspecDependsOn);</GenerateNuspecDependsOn>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <!-- .NET Tool properties -->
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>toolsay</ToolCommandName>
