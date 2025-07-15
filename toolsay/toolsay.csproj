@@ -7,6 +7,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 
+    <GenerateNuspecDependsOn>CheckToolTypesThatDoNotWorkForPreview6;CheckToolTypeIsValid;$(GenerateNuspecDependsOn);</GenerateNuspecDependsOn>
     <!-- .NET Tool properties -->
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>toolsay</ToolCommandName>
@@ -53,8 +54,13 @@
     <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
-  <Target Name="CheckToolType" BeforeTargets="Pack">
+  <Target Name="CheckToolTypeIsValid">
     <Error Condition="'@(ToolType)' != '' and ('$(ToolType)' != 'agnostic' And '$(ToolType)' != 'specific' And '$(ToolType)' != 'self-contained' And '$(ToolType)' != 'trimmed' And '$(ToolType)' != 'aot')" Text="Invalid ToolType value: $(ToolType). Valid values are agnostic, specific, self-contained, trimmed, aot." />
+  </Target>
+
+  <Target Name="CheckToolTypesThatDoNotWorkForPreview6" Condition="$(NetCoreSDKVersion.StartsWith('10.0.100-preview.6'))">
+    <Error Condition="'$(ToolType)' == 'specific'" Text="Framework-dependent, platform-specific Tools doesn't work for .NET 10 preview 6, see https://github.com/dotnet/sdk/issues/49494 for details." />
+    <Error Condition="'$(ToolType)' == 'trimmed'" Text="Trimmed tools don't work for .NET 10 preview 6, see https://github.com/dotnet/sdk/issues/49493 for details." />
   </Target>
 
   <!-- TODO: log the fact that this doesn't work today as a bug in the SDK/NuGet. -->
