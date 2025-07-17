@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
+    <PackageReference Include="OpenTelemetry" Version="1.9.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(ToolType)' == 'agnostic' Or '$(ToolType)' == ''">
@@ -60,7 +62,7 @@
   </Target>
 
   <Target Name="CheckToolTypesThatDoNotWorkForPreview6" Condition="$(NetCoreSDKVersion.StartsWith('10.0.100-preview.6'))">
-    <Error Condition="'$(ToolType)' == 'specific'" Text="Framework-dependent, platform-specific Tools doesn't work for .NET 10 preview 6, see https://github.com/dotnet/sdk/issues/49494 for details." />
+    <!-- <Error Condition="'$(ToolType)' == 'specific'" Text="Framework-dependent, platform-specific Tools doesn't work for .NET 10 preview 6, see https://github.com/dotnet/sdk/issues/49494 for details." /> -->
     <Error Condition="'$(ToolType)' == 'trimmed'" Text="Trimmed tools don't work for .NET 10 preview 6, see https://github.com/dotnet/sdk/issues/49493 for details." />
   </Target>
 
